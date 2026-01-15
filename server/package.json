@@ -1,0 +1,43 @@
+{
+  "name": "doctor-appoinment",
+  "version": "1.0.0",
+  "description": "Doctor Appointment Backend",
+  "main": "dist/server.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev --name init",
+    "lint": "eslint . --ext .ts"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.2.0",
+    "@prisma/client": "^7.2.0",
+    "@types/multer": "^2.0.0",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "http-status": "^2.1.0",
+    "install": "^0.13.0",
+    "multer": "^2.0.2",
+    "npm": "^11.7.0",
+    "pg": "^8.16.3",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.0.6",
+    "@types/pg": "^8.16.0",
+    "prisma": "^7.2.0",
+    "ts-node-dev": "^2.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
