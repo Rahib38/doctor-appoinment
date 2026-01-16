@@ -4,35 +4,50 @@ import { prisma } from "../../../../lib/prisma";
 import { fileUploader } from "../../helper/fileUploader";
 
 const createPatient = async (req: Request) => {
+//   console.log("RAW BODY 👉", req.body);
+//   console.log("FILE 👉", req.file);
 
-    if(req.file){
-        const uploadResult = await fileUploader.uploadToCloudinary(req.file)
-        console.log(uploadResult)
-    }
+  //  Parse the incoming data
+  if (!req.body.data) {
+    throw new Error("Missing 'data' in request body");
+  }
 
-    const hashPassword = await bcrypt.hash(req.body.password, 10);
+  const parsedData = JSON.parse(req.body.data);
 
-    const createUser = await prisma.user.create({
-        data:{
-            email:req.body.email,
-            password:hashPassword
-        }
-    })
-    
-    const createPatients = await prisma.patient.create({
-        data:{
-            name:req.body.name,
-            email:req.body.email,
-        }
-    })
+  const { password, patient } = parsedData;
 
-    return {
-        createUser,
-        createPatients
-    }
+  if (!password) throw new Error("Password is required");
+  if (!patient || !patient.email) throw new Error("Patient data is required with email");
 
-}
+  // Handle file upload if exists
+  if (req.file) {
+    const uploadResult = await fileUploader.uploadToCloudinary(req.file);
+    patient.profilePhoto = uploadResult?.secure_url;
+    console.log("UPLOAD RESULT 👉", uploadResult);
+  }
+
+  //  Hash the password
+  const hashPassword = await bcrypt.hash(password, 10);
+
+  //  Create user
+  const createUser = await prisma.user.create({
+    data: {
+      email: patient.email,
+      password: hashPassword,
+    },
+  });
+
+  //  Create patient
+  const createPatients = await prisma.patient.create({
+    data: patient,
+  });
+
+  return {
+    createUser,
+    createPatients,
+  };
+};
 
 export const UserService = {
-    createPatient
-}
+  createPatient,
+};
