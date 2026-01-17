@@ -7,11 +7,28 @@ const login = catchAsync(async (req: Request, res: Response) => {
 
     const result = await AuthService.login(req.body)
 
+    const {accessToken,refreshToken, needPasswordChange}=result
+
+
+    res.cookie("accessToken",accessToken,{
+        secure:true,
+        httpOnly:true,
+        sameSite:"none",
+        maxAge:1000*60*60
+    })
+    
+    res.cookie("refreshToken",refreshToken,{
+        secure:true,
+        httpOnly:true,
+        sameSite:"none",
+        maxAge:1000*60*60*24*30
+    })
+
     sendResponse(res, {
         statusCode: 201,
         success: true,
         message: "Login successfully!",
-        data: result
+        data: {needPasswordChange}
     })
 })
 
