@@ -7,7 +7,7 @@ export type createPatientInput = {
 }
 
 
-export type createDoctortInput= {
+export type createDoctorInput= {
     
     name: string;
     email: string;
@@ -23,4 +23,13 @@ export type createDoctortInput= {
     currentWorkingPlace: string;
     designation: string;
   
+}
+
+
+export type createAdminInput= {
+  name: string;
+  email: string;
+  profilePhoto?: string | null;
+  contactNumber: string;
+
 }

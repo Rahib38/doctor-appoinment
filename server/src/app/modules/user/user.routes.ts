@@ -29,4 +29,15 @@ router.post(
 );
 // create admin
 
+router.post(
+  "/create-admin",
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    UserValidation.createAdminValidationSchema.parse(
+      JSON.parse(req.body.data)
+    );
+    return UserController.createAdmin(req,res,next);
+  }
+);
+
 export const userRoutes = router;
