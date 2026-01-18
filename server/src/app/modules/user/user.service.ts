@@ -2,7 +2,13 @@ import { Request } from "express";
 import bcrypt from "bcryptjs";
 import { prisma } from "../../../../lib/prisma";
 import { fileUploader } from "../../helper/fileUploader";
-import { Admin, Doctor, User, UserRole } from "../../../../prisma/generated/prisma/client";
+import {
+  Admin,
+  Doctor,
+  User,
+  UserRole,
+} from "../../../../prisma/generated/prisma/client";
+
 
 const createPatient = async (req: Request) => {
   //   console.log("RAW BODY 👉", req.body);
@@ -54,15 +60,14 @@ type CreateDoctorResponse = {
   doctor: Doctor;
 };
 
-const createDoctor = async (req: Request):Promise<CreateDoctorResponse> => {
-    // console.log("RAW BODY 👉", req.body);
+const createDoctor = async (req: Request): Promise<CreateDoctorResponse> => {
+  // console.log("RAW BODY 👉", req.body);
   //   console.log("FILE 👉", req.file);
 
   //  Parse the incoming data
   if (!req.body.data) {
     throw new Error("Missing 'data' in request body");
   }
-
 
   const parsedData = JSON.parse(req.body.data);
 
@@ -83,33 +88,30 @@ const createDoctor = async (req: Request):Promise<CreateDoctorResponse> => {
   const hashPassword = await bcrypt.hash(password, 10);
 
   //  Create user
-const createUser = await prisma.user.create({
-  data: {
-    email: doctor.email,
-    password: hashPassword,
-    role: UserRole.DOCTOR,
-  },
-});
+  const createUser = await prisma.user.create({
+    data: {
+      email: doctor.email,
+      password: hashPassword,
+      role: UserRole.DOCTOR,
+    },
+  });
 
-const createDoctors = await prisma.doctor.create({
-  data:doctor
-});
-
+  const createDoctors = await prisma.doctor.create({
+    data: doctor,
+  });
 
   return {
     createUser,
-    doctor:createDoctors,
+    doctor: createDoctors,
   };
-
 };
-
 
 type CreateAdminResponse = {
   createUser: User;
   admin: Admin;
 };
 
-const createAdmin= async (req: Request):Promise<CreateAdminResponse> => {
+const createAdmin = async (req: Request): Promise<CreateAdminResponse> => {
   //   console.log("RAW BODY 👉", req.body);
   //   console.log("FILE 👉", req.file);
 
@@ -141,7 +143,7 @@ const createAdmin= async (req: Request):Promise<CreateAdminResponse> => {
     data: {
       email: admin.email,
       password: hashPassword,
-      role:UserRole.ADMIN
+      role: UserRole.ADMIN,
     },
   });
 
@@ -152,12 +154,22 @@ const createAdmin= async (req: Request):Promise<CreateAdminResponse> => {
 
   return {
     createUser,
-    admin:createAdmins,
+    admin: createAdmins,
   };
 };
+
+
+const getAllUser = async({page, limit}:{page:number, limit:number})=>{
+  const skip = (page-1)*limit
+  const result = await prisma.user.findMany({skip,take:limit})
+  console.log(result, "result")
+  return result
+}
+
 
 export const UserService = {
   createPatient,
   createDoctor,
-  createAdmin
+  createAdmin,
+  getAllUser
 };

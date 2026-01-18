@@ -5,6 +5,9 @@ import { fileUploader } from "../../helper/fileUploader";
 
 const router = express.Router();
 
+router.get("/", UserController.getAllUsersFromDB);
+
+
 router.post(
   "/create-patient",
   fileUploader.upload.single("file"),
@@ -39,5 +42,7 @@ router.post(
     return UserController.createAdmin(req,res,next);
   }
 );
+
+
 
 export const userRoutes = router;
