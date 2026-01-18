@@ -16,6 +16,17 @@ router.post(
   }
 );
 // create doctor
+
+router.post(
+  "/create-doctor",
+  fileUploader.upload.single("file"),
+  (req: Request, res: Response, next: NextFunction) => {
+    UserValidation.createDoctorValidationSchema.parse(
+      JSON.parse(req.body.data)
+    );
+    return UserController.createDoctor(req,res,next);
+  }
+);
 // create admin
 
 export const userRoutes = router;
