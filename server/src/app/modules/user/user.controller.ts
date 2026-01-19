@@ -35,10 +35,15 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
+  const { page, limit ,searchTerm, sortBy, sortOrder} = req.query;
 
-    const {page,limit}=req.query
-
-  const result = await UserService.getAllUser({page:Number(page),limit:Number(limit)});
+  const result = await UserService.getAllUser({
+    page: Number(page),
+    limit: Number(limit),
+    searchTerm,
+    sortBy,
+    sortOrder
+  });
 
   sendResponse(res, {
     statusCode: 200,
@@ -48,11 +53,9 @@ const getAllUsersFromDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-
 export const UserController = {
   createPatient,
   createDoctor,
   createAdmin,
-  getAllUsersFromDB
+  getAllUsersFromDB,
 };

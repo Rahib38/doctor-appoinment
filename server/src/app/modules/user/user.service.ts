@@ -9,7 +9,6 @@ import {
   UserRole,
 } from "../../../../prisma/generated/prisma/client";
 
-
 const createPatient = async (req: Request) => {
   //   console.log("RAW BODY 👉", req.body);
   //   console.log("FILE 👉", req.file);
@@ -158,18 +157,32 @@ const createAdmin = async (req: Request): Promise<CreateAdminResponse> => {
   };
 };
 
+const getAllUser = async ({ page, limit,searchTerm, sortBy, sortOrder}: { page: number; limit: number; searchTerm:any; sortBy:any; sortOrder:any }) => {
+  const pageNumber = page ||1
 
-const getAllUser = async({page, limit}:{page:number, limit:number})=>{
-  const skip = (page-1)*limit
-  const result = await prisma.user.findMany({skip,take:limit})
-  console.log(result, "result")
-  return result
-}
+  const limitNumber = limit || 10;
 
+  const skip = (pageNumber - 1) * limitNumber;
+  const result = await prisma.user.findMany({ skip, take: limitNumber ,
+    where:{
+      email:{
+        contains:searchTerm,
+        mode:"insensitive"
+      }
+    },
+    orderBy:sortBy &&sortOrder?{
+      [sortBy]:sortOrder
+    }:{
+      createdAt:"desc"
+    }
+   });
+  console.log(result, "result");
+  return result;
+};
 
 export const UserService = {
   createPatient,
   createDoctor,
   createAdmin,
-  getAllUser
+  getAllUser,
 };
