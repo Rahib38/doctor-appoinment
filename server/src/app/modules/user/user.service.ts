@@ -5,9 +5,12 @@ import { fileUploader } from "../../helper/fileUploader";
 import {
   Admin,
   Doctor,
+  Prisma,
   User,
   UserRole,
 } from "../../../../prisma/generated/prisma/client";
+import { paginationHelper } from "../../helper/paginationHelpers";
+import { userSearchableField } from "./user.constant";
 
 const createPatient = async (req: Request) => {
   //   console.log("RAW BODY 👉", req.body);
@@ -157,25 +160,64 @@ const createAdmin = async (req: Request): Promise<CreateAdminResponse> => {
   };
 };
 
-const getAllUser = async ({ page, limit,searchTerm, sortBy, sortOrder}: { page: number; limit: number; searchTerm:any; sortBy:any; sortOrder:any }) => {
-  const pageNumber = page ||1
+const getAllUser = async (
+  //   {
+  //   page,
+  //   limit,
+  //   searchTerm,
+  //   sortBy,
+  //   sortOrder,
+  //   role,
+  //   status,
+  // }: {
+  //   page: number;
+  //   limit: number;
+  //   searchTerm: any;
+  //   sortBy: any;
+  //   sortOrder: any;
+  //   role: any;
+  //   status: any;
+  // }
+  params: any,
+  options: any,
+) => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationHelper.calculatePagination(options);
+  const { searchTerm, ...filterData } = params;
 
-  const limitNumber = limit || 10;
+  const andConditions: Prisma.UserWhereInput[] = [];
 
-  const skip = (pageNumber - 1) * limitNumber;
-  const result = await prisma.user.findMany({ skip, take: limitNumber ,
-    where:{
-      email:{
-        contains:searchTerm,
-        mode:"insensitive"
-      }
+  if (searchTerm) {
+    andConditions.push({
+      OR: userSearchableField.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    andConditions.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
+        },
+      })),
+    });
+  }
+
+  const result = await prisma.user.findMany({
+    skip,
+    take: limit,
+    where: {
+      AND: andConditions,
     },
-    orderBy:sortBy &&sortOrder?{
-      [sortBy]:sortOrder
-    }:{
-      createdAt:"desc"
-    }
-   });
+    orderBy: {
+      [sortBy]: sortOrder,
+    },
+  });
   console.log(result, "result");
   return result;
 };
